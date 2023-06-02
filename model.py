@@ -17,8 +17,8 @@ class VGGBlock(nn.Module):
         self.block = nn.Sequential(*layers)
     
     def forward(self, x):
-        x = self.block(x)
-        return x
+        out = self.block(x)
+        return out
             
 
 class VGGNet(nn.Module):
@@ -33,6 +33,18 @@ class VGGNet(nn.Module):
         )
         
         self.classifier = nn.Sequential(
-            nn.Linear(512)
+            nn.Linear(512 * 7 * 7, 4096),
+            nn.ReLU(inplace=True),
+            nn.Dropout(),
+            nn.Linear(4096, 4096),
+            nn.ReLU(inplace=True),
+            nn.Dropout(),
+            nn.Linear(4096, num_classes),
         )
+    
+    def forward(self, x):
+        out = self.features(x)
+        out = torc
+        
+        https://drive.google.com/drive/folders/1OFTLgttAHmMClXWjWDinqK6jlhUduecC
         
