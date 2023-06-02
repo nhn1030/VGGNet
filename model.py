@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 class VGGBlock(nn.Module):
     def __init__(self, in_channel, out_channel, num_conv):
@@ -9,7 +8,7 @@ class VGGBlock(nn.Module):
         layers = []
         for _ in range(num_conv):
             layers.append(nn.Conv2d(in_channel, out_channel, kernel_size=3, padding=1))
-            layers.append(F.ReLU(inplace=True))
+            layers.append(nn.ReLU(inplace=True))
             in_channel = out_channel
         
         layers.append(nn.MaxPool2d(kernel_size=2, stride=2))
@@ -24,23 +23,24 @@ class VGGBlock(nn.Module):
 class VGGNet(nn.Module):
     def __init__(self, num_blocks, num_classes=1000):
         super(VGGNet, self).__init__()
-        self.features = self.make.layers(num_blocks)
+        self.features = self._make_layers(num_blocks)
         self.classifier = nn.Sequential(
             nn.Linear(512 * 7 * 7, 4096),
-            F.ReLU(inplace=True),
+            nn.ReLU(inplace=True),
             nn.Dropout(),
             nn.Linear(4096, 4096),
-            F.ReLU(inplace=True),
+            nn.ReLU(inplace=True),
             nn.Dropout(),
             nn.Linear(4096, num_classes),
         )
     
-    def _make_layer(self, num_blocks):
+    def _make_layers(self, num_blocks):
         
         layers = []
         
         in_channels = 3
         out_channels = 64
+        
         for num_conv in num_blocks:
             layers.append(VGGBlock(in_channels, out_channels, num_conv))
             in_channels = out_channels
