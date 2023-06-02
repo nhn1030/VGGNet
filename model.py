@@ -21,17 +21,10 @@ class VGGBlock(nn.Module):
         return out
             
 
-class VGGNet16(nn.Module):
-    def __init__(self, num_classes=1000):
-        super(VGGNet16, self).__init__()
-        self.features = nn.Sequential(
-            VGGBlock(3, 64, 2),
-            VGGBlock(3, 128, 2),
-            VGGBlock(3, 256, 3),
-            VGGBlock(3, 512, 3),
-            VGGBlock(3, 512, 3),
-        )
-        
+class VGGNet(nn.Module):
+    def __init__(self, num_blocks, num_classes=1000):
+        super(VGGNet, self).__init__()
+        self.features = self.make.layers(num_blocks)
         self.classifier = nn.Sequential(
             nn.Linear(512 * 7 * 7, 4096),
             nn.ReLU(inplace=True),
@@ -42,36 +35,31 @@ class VGGNet16(nn.Module):
             nn.Linear(4096, num_classes),
         )
     
-    def forward(self, x):
-        out = self.features(x)
-        out = torch.flatten(out, 1)
-        out = self.classifiers(out)
-        return out
-    
-class VGGNet19(nn.Module):
-    def __init__(self, num_classes=1000):
-        super(VGGNet19, self).__init__()
-        self.features = nn.Sequential(
-            VGGBlock(3, 64, 2),
-            VGGBlock(3, 128, 2),
-            VGGBlock(3, 256, 4),
-            VGGBlock(3, 512, 4),
-            VGGBlock(3, 512, 4),
-        )
+    def _make_layer(self, num_blocks):
         
-        self.classifier = nn.Sequential(
-            nn.Linear(512 * 7 * 7, 4096),
-            nn.ReLU(inplace=True),
-            nn.Dropout(),
-            nn.Linear(4096, 4096),
-            nn.ReLU(inplace=True),
-            nn.Dropout(),
-            nn.Linear(4096, num_classes),
-        )
+        layers = []
+        
+        in_channels = 3
+        out_channels = 6
+        for num_conv in num_blocks:
+            layers.append(VGGBlock(in_channels, out_channels, num_conv))
+            in_channels = out_channels
+            out_channels *= 2
+        return nn.Sequential(*layers)
+
+            
+        
     
     def forward(self, x):
         out = self.features(x)
         out = torch.flatten(out, 1)
         out = self.classifiers(out)
         return out
-        
+    
+    
+def VGGNet16():
+    return VGGNet(num_blocks= [2,2,3,3,3], num_classes= 1000)
+
+
+def VGGNet19():
+    return VGGNet(num_blocks= [2,2,4,4,4], num_classes= 1000)
