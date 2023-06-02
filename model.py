@@ -44,7 +44,9 @@ class VGGNet(nn.Module):
     
     def forward(self, x):
         out = self.features(x)
-        out = torc
-        
-        https://drive.google.com/drive/folders/1OFTLgttAHmMClXWjWDinqK6jlhUduecC
+        out = torch.flatten(out, 1)
+        out = self.classifiers(out)
+        return out
+    
+    
         
