@@ -9,7 +9,7 @@ class VGGBlock(nn.Module):
         layers = []
         for _ in range(num_conv):
             layers.append(nn.Conv2d(in_channel, out_channel, kernel_size=3, padding=1))
-            layers.append(nn.ReLU(inplace=True))
+            layers.append(F.ReLU(inplace=True))
             in_channel = out_channel
         
         layers.append(nn.MaxPool2d(kernel_size=2, stride=2))
@@ -27,10 +27,10 @@ class VGGNet(nn.Module):
         self.features = self.make.layers(num_blocks)
         self.classifier = nn.Sequential(
             nn.Linear(512 * 7 * 7, 4096),
-            nn.ReLU(inplace=True),
+            F.ReLU(inplace=True),
             nn.Dropout(),
             nn.Linear(4096, 4096),
-            nn.ReLU(inplace=True),
+            F.ReLU(inplace=True),
             nn.Dropout(),
             nn.Linear(4096, num_classes),
         )
@@ -40,7 +40,7 @@ class VGGNet(nn.Module):
         layers = []
         
         in_channels = 3
-        out_channels = 6
+        out_channels = 64
         for num_conv in num_blocks:
             layers.append(VGGBlock(in_channels, out_channels, num_conv))
             in_channels = out_channels
